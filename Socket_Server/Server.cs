@@ -124,14 +124,14 @@ namespace Socket_Server
 
                     Socket clientSocket = Listener.Accept(); //Set the newly astablished connection to a socket obj.
                     Console.WriteLine($"Connection to a Client is established");
-                    byte[] bufferSize = new byte[1024]; //WinSize ??
+                    byte[] bufferArray = new byte[1024]; //WinSize ??
                     string bufferDecoded = null; //String buffer for decoded data
 
                     bool isEOF = false;
                     do
                     {
-                        int packetLenght = clientSocket.Receive(bufferSize);
-                        bufferDecoded += Encoding.ASCII.GetString(bufferSize, 0, packetLenght);
+                        int packetLenght = clientSocket.Receive(bufferArray);
+                        bufferDecoded += Encoding.ASCII.GetString(bufferArray, 0, packetLenght);
                         Console.WriteLine($"Message from Client : {bufferDecoded}"); //CW Feedback
 
                         if (bufferDecoded.IndexOf("<EOF>") > -1) //EOF : End of File
@@ -158,3 +158,4 @@ namespace Socket_Server
         }
         #endregion
     }
+}
