@@ -2,5 +2,5 @@
 
 Project Type: Console Application<br/>
 Project Structure: None<br/>
-Project Domain: Server & Client Sockets<br/>
+Project Domain: Web Acutions<br/>
 Associated Projects: Socket_Client<br/>
