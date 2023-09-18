@@ -13,19 +13,25 @@ namespace Socket_Server
         private byte[] bufferArray;
         private byte[] dataSubmit;
         private string bufferDecoded;
+
+        private bool isPendingConnection = true;
         #endregion
 
-        public void CreateHost(int clientMax = 1) // = Defualt
+        public void CreateHost(int clientMax = 1, int port = 1111) // = Defualt
         {
             IPHostEntry IPEntry = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress IPAddr = IPEntry.AddressList[0];
-            IPEndPoint EndPoint = new(IPAddr, 1111);
+            IPEndPoint EndPoint = new(IPAddr, port);
 
             serverSocket = new(IPAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 serverSocket.Bind(EndPoint);
                 serverSocket.Listen(clientMax);
+
+                Console.WriteLine($"Created Host on EndPoint {EndPoint}");
+
+                SetupClientConnection();
             }
             catch (Exception e)
             {
@@ -37,13 +43,15 @@ namespace Socket_Server
         {
             try
             {
-                //bool isPending = true;
                 do
                 {
                     clientSocket = serverSocket.Accept();
                     bufferArray = new byte[bufferSize];
+
+                    if (clientSocket.Connected)
+                        RetrieveClientTransfer();
                 }
-                while (clientSocket.Connected);
+                while (isPendingConnection);
             }
             catch (Exception e)
             {
@@ -51,7 +59,7 @@ namespace Socket_Server
             }
         }
 
-        public string RetrieveClientTransfer()
+        public void RetrieveClientTransfer()
         {
             try
             {
@@ -61,29 +69,39 @@ namespace Socket_Server
                     int packedLength = clientSocket.Receive(bufferArray);
                     bufferDecoded += Encoding.ASCII.GetString(bufferArray, 0, packedLength);
 
+                    Console.WriteLine($"Message from Client : {bufferDecoded}"); //CW Feedback
+
                     if (bufferDecoded.IndexOf("<EOF>") > -1)
+                    {
                         isEOF = true;
+                        isPendingConnection = false;
+
+                        TransferToClient();
+                    }
                 }
-                while (isEOF);
+                while (!isEOF);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-
-            return bufferDecoded;
         }
 
-        public void TransferToClient(string message = "Server Respons") // = Defualt
+        public void TransferToClient(string message = "Server Respons<EOF>") // = Defualt
         {
             try
             {
                 dataSubmit = Encoding.ASCII.GetBytes(message);
                 clientSocket.Send(dataSubmit);
+
+                Console.WriteLine($"Message to Client : {message}"); //CW Feedback
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+            finally
+            {
                 //CloseConnection();
             }
         }
@@ -94,6 +112,8 @@ namespace Socket_Server
             {
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
+
+                Console.WriteLine($"Closed Conenction to Client"); //CW Feedback
             }
             catch (Exception e)
             {
@@ -132,15 +152,14 @@ namespace Socket_Server
                     {
                         int packetLenght = clientSocket.Receive(bufferArray);
                         bufferDecoded += Encoding.ASCII.GetString(bufferArray, 0, packetLenght);
-                        Console.WriteLine($"Message from Client : {bufferDecoded}"); //CW Feedback
 
                         if (bufferDecoded.IndexOf("<EOF>") > -1) //EOF : End of File
                             isEOF = true;
 
                     }
-                    while (isEOF);
+                    while (!isEOF);
 
-                    Console.WriteLine($"Text Reviced : {bufferDecoded}"); //CW Feedback
+                    Console.WriteLine($"Message from Client : {bufferDecoded}"); //CW Feedback
                     byte[] dataTransfer = Encoding.ASCII.GetBytes("Test 1 <Server>");
                     clientSocket.Send(dataTransfer); //Send via the Socket connected to the Client
 

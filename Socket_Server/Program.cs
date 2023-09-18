@@ -7,8 +7,8 @@
         static void Main(string[] args)
         {
             Server.CreateHost();
-            Console.WriteLine(Server.RetrieveClientTransfer());
-            Server.TransferToClient();
+
+            Console.ReadKey();
             Server.CloseConnection();
         }
     }
