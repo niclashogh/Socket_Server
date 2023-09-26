@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Socket_Server
 {
-    public class Server
+    public class Server_Old
     {
         #region Variables
         private Socket clientSocket;
@@ -120,9 +120,11 @@ namespace Socket_Server
                 Console.WriteLine(e);
             }
         }
+    }
 
-        #region Test Run
-        public void TestRun()
+    public class TestServer
+    {
+        public void Run()
         {
             IPHostEntry IPEntry = Dns.GetHostEntry(Dns.GetHostName()); //Retrives a list of HostEntries
             IPAddress IPAddr = IPEntry.AddressList[0]; //Select the first in the list (usually the active)
@@ -175,6 +177,5 @@ namespace Socket_Server
                 Console.WriteLine(e);
             }
         }
-        #endregion
     }
 }

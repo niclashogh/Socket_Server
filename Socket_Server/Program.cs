@@ -2,14 +2,19 @@
 {
     internal class Program
     {
-        static Server Server = new();
+        private static Host host;
+        private static Connection conenction;
 
         static void Main(string[] args)
         {
-            Server.CreateHost();
+            host = new(maxClients: 4);
+
+            host.Initialize();
+
+            conenction = new(host); //Thread-able
 
             Console.ReadKey();
-            Server.CloseConnection();
+            host.Close();
         }
     }
 }
