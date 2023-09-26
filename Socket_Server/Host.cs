@@ -135,14 +135,17 @@ namespace Socket_Server
 
         private void Submit(string message)
         {
-            // Add logic for which answer to send/action to execute
-            submitData = Encoding.ASCII.GetBytes("Answer");
-            clientSocket.Send(submitData);
-
             if (message.Contains("<FIN>"))
             {
-                // Send <FIN> Message
+                submitData = Encoding.ASCII.GetBytes("<FIN>");
+                clientSocket.Send(submitData);
                 CloseConnection();
+            }
+            else
+            {
+                // Add logic for which answer to send/action to execute
+                submitData = Encoding.ASCII.GetBytes("Answer");
+                clientSocket.Send(submitData);
             }
         }
 
