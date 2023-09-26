@@ -67,9 +67,8 @@ namespace Socket_Server
         private Host host;
         private Socket clientSocket { get; set; }
 
-        private byte[] bufferData { get; set; }
+        private byte[] bufferData { get; set; } = new byte[1024];
         private byte[] submitData { get; set; }
-        //private int bufferSize { get; set; } = 1024;
         private string bufferDecoded { get; set; }
         private bool isPendingConnection { get; set; } = true;
         #endregion
@@ -82,8 +81,6 @@ namespace Socket_Server
 
         public void Establish()
         {
-            //bufferData = new byte[bufferSize];
-
             Console.WriteLine("Connection is Pending ...");
 
             do
@@ -119,6 +116,7 @@ namespace Socket_Server
                         int packedLenght = clientSocket.Receive(bufferData);
                         bufferDecoded = Encoding.ASCII.GetString(bufferData, 0, packedLenght);
 
+                        Console.WriteLine($"From Client : {bufferDecoded}"); //CW Feedback for now
                         Submit(bufferDecoded);
                     }
                 }
@@ -131,12 +129,7 @@ namespace Socket_Server
             }
             finally
             {
-                if (clientSocket.Connected)
-                {
-                    clientSocket.Shutdown(SocketShutdown.Both);
-                    clientSocket.Close();
-                    Console.WriteLine("Connection to client is now closed");
-                }
+                CloseConnection();
             }
         }
 
@@ -148,8 +141,27 @@ namespace Socket_Server
 
             if (message.Contains("<FIN>"))
             {
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                // Send <FIN> Message
+                CloseConnection();
+            }
+        }
+
+        private void CloseConnection()
+        {
+            try
+            {
+                if (clientSocket.Connected)
+                {
+                    clientSocket.Shutdown(SocketShutdown.Both);
+                    clientSocket.Close();
+                    Console.WriteLine("Connection to client is now closed");
+
+                    Establish(); // ?
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }
