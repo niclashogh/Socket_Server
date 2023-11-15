@@ -11,20 +11,19 @@ namespace Socket_Server
     public class Host
     {
         #region Variables & Properties
+        private Connection connection; 
         public Socket HostSocket { get; private set; }
         public IPEndPoint EndPoint { get; private set; }
 
         public int Port { get; private set; }
-        public int MaxClients { get; private set; }
         #endregion
 
-        public Host(int port = 1111, int maxClients = 1)
+        public Host(int port = 1111)
         {
             Port = port;
-            MaxClients = maxClients;
         }
 
-        public void Initialize()
+        public async void Initialize()
         {
             IPHostEntry IPEntry = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress IPAddr = IPEntry.AddressList[0];
@@ -35,7 +34,7 @@ namespace Socket_Server
             try
             {
                 HostSocket.Bind(EndPoint);
-                HostSocket.Listen(MaxClients);
+                HostSocket.Listen();
 
                 Console.WriteLine($"Created Host on EndPoint {EndPoint}");
             }
